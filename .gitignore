@@ -1,7 +1,7 @@
 # Python
 __pycache__/
 *.pyc
-.venv/
+pyenv_cvk8s/
 
 # Terraform (pour plus tard)
 .terraform/
