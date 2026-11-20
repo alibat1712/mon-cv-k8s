@@ -1,0 +1,14 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# Terraform (pour plus tard)
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfvars
+
+# Kubernetes / Clés (sécurité)
+kubeconfig
+*.pem
