@@ -1,0 +1,32 @@
+---
+- name: Installer k3s sur le serveur EC2
+  hosts: k3s_server
+  become: yes
+
+  tasks:
+    - name: Mettre à jour le cache apt et installer curl
+      apt:
+        name: curl
+        state: present
+        update_cache: yes
+
+    - name: Installer k3s avec le certificat TLS sur l'IP publique
+      shell: |
+        curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC="--tls-san {{ inventory_hostname }} --write-kubeconfig-mode 644" sh -
+      args:
+        creates: /usr/local/bin/k3s
+
+    - name: Attendre que le service k3s soit actif
+      systemd:
+        name: k3s
+        state: started
+        enabled: yes
+
+    - name: Vérifier l'état du nœud Kubernetes
+      command: kubectl get nodes
+      register: k8s_nodes
+      changed_when: false
+
+    - name: Afficher le statut du nœud
+      debug:
+        var: k8s_nodes.stdout_lines
