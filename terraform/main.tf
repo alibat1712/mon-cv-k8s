@@ -11,13 +11,13 @@ data "aws_ami" "ubuntu" {
 
 # Enregistre ma clé publique SSH sur AWS
 resource "aws_key_pair" "deployer" {
-  key_name   = "mon-cv-k8s-key"
+  key_name   = "cv-abt-k8s-key"
   public_key = file(var.public_key_path)
 }
 
 # Security group
 resource "aws_security_group" "k3s_sg" {
-  name        = "mon-cv-k3s-sg"
+  name        = "cv-abt-k3s-sg"
   description = "Autorise HTTP/HTTPS public et SSH/K8s uniquement depuis mon IP"
 
   ingress {
@@ -66,7 +66,6 @@ resource "aws_instance" "k3s_node" {
   instance_type          = var.instance_type
   key_name               = aws_key_pair.deployer.key_name
   vpc_security_group_ids = [aws_security_group.k3s_sg.id]
-  user_data              = file("${path.module}/install_k3s.sh")
 
   root_block_device {
     volume_size = 20
@@ -74,6 +73,6 @@ resource "aws_instance" "k3s_node" {
   }
 
   tags = {
-    Name = "mon-cv-k3s-node"
+    Name = "cv-abt-k3s-node"
   }
 }
