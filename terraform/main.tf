@@ -1,11 +1,20 @@
-# Récupère automatiquement la dernière image Ubuntu 24.04 LTS officielle (Canonical)
-data "aws_ami" "ubuntu" {
+data "aws_ami" "rhel" {
   most_recent = true
-  owners      = ["099720109477"]
+  owners      = ["309956199498"]
 
   filter {
     name   = "name"
-    values = ["ubuntu/images/hvm-ssd-gp3/ubuntu-noble-24.04-amd64-server-*"]
+    values = ["RHEL-9.*_HVM-*-x86_64-*-GP3"]
+  }
+
+  filter {
+    name   = "virtualization-type"
+    values = ["hvm"]
+  }
+
+  filter {
+    name   = "root-device-type"
+    values = ["ebs"]
   }
 }
 
@@ -62,14 +71,12 @@ resource "aws_security_group" "k3s_sg" {
 
 # Instance EC2 qui héberge k3s
 resource "aws_instance" "k3s_node" {
-  ami                    = data.aws_ami.ubuntu.id
+  ami                    = data.aws_ami.rhel.id
   instance_type          = var.instance_type
   key_name               = aws_key_pair.deployer.key_name
   vpc_security_group_ids = [aws_security_group.k3s_sg.id]
-
   root_block_device {
     volume_size = 20
-    volume_type = "gp3"
   }
 
   tags = {
