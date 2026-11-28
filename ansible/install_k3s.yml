@@ -1,22 +1,24 @@
 ---
-- name: 'Installation de K3s sur mon serveur Ubuntu AWS'
+- name: 'Installation de K3s sur mon serveur RHEL AWS'
   hosts: k3s_server
   become: yes
   
   tasks:
-    - name: 'Desactivation de ufw comme pre-requis recommande'
-      ansible.builtin.command: sudo ufw disable
+    #- name: 'Desactivation de ufw comme pre-requis recommande'
+    #  ansible.builtin.command: sudo ufw disable
     
     - name: 'Installer curl'
-      ansible.builtin.apt:
+      ansible.builtin.dnf:
         name: curl
-        state: present
-        update_cache: true        
+        state: present       
         
     - name: 'Installer et configurer k3s'
       ansible.builtin.shell: 
         cmd: curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC="--tls-san {{ inventory_hostname }} --write-kubeconfig-mode 644" sh -
-        creates: /usr/local/bin/k3s
+        creates: /etc/rancher/k3s/config.yaml
+    
+    - name: 'Mise a jour des permission du fichier /etc/rancher/k3s/config.yaml'
+      ansible.builtin.command: sudo chmod 644 /etc/rancher/k3s/k3s.yaml
        
     - name: 'Check du service k3s'
       ansible.builtin.service:
@@ -25,7 +27,7 @@
         enabled: yes
         
     - name: 'Verification avec check des nodes k8s'
-      ansible.builtin.command: kubectl get nodes
+      ansible.builtin.command: /usr/local/bin/kubectl get nodes
       register: result
        
     - name: 'Affichage du statut des nodes k8S'
